@@ -1,11 +1,21 @@
 var twitter = require('twitter');
 var spotify =require('node-spotify-api');
 var request = require('request');
-var inquirer = require('inquirer');
 var fs = require('fs');
 var keys = require('./keys');
 var keys2 = require('./keys2');
-var item;
+//Various argument variables,  Input names for movie or songs can be up to 13 words long.
+var arg = process.argv;
+
+var item = "";
+var command = arg[2];
+var dataReturned;
+//this concatenates the arguments 3-15 into the item variable
+for(var i = 3; i < arg.length; i++){
+	item = item + arg[i];
+}
+
+//function for getting the last 20 tweets
 var tweets = function() {
 	var client = new twitter ({
 		consumer_key: keys.consumer_key,
@@ -30,6 +40,7 @@ var tweets = function() {
 		}
 	});
 };
+//function to get data for spotify-this-song
 var querySpotify = function(song) {
 	var spotifySearch = new spotify({
 	    id: keys2.Client_ID,
@@ -77,6 +88,7 @@ var querySpotify = function(song) {
 	});
 
 };
+//function for getting data for movie-this from OMDB
 var movie = function(movie) {
 	if(movie === undefined) {
 		movie = "Idiocracy";
@@ -142,6 +154,7 @@ var movie = function(movie) {
 		}
 	})
 }
+//this function reads the file, splits at , the first element of the array is the command, the second the query
 var itSays = function(movie) {
 	fs.readFile('random.txt', "utf8", function(error, data) {
     if (error) {
@@ -169,48 +182,4 @@ var switchFunction = function(command, query) {
 	break;
 	}
 }
-var spotifyPrompt = function() {
-	inquirer.prompt([
-	{
-		type: "input",
-    	name: 'song',
-    	message: 'What song do you want to look up?',
-	}]).then(function(n) {
-		item = n.song;
-		querySpotify(n.song);
-	})
-}
-var OMDBPrompt = function() {
-	inquirer.prompt([
-		{
-			type: "input",
-	    	name: 'qMovie',
-	    	message: 'What movie do you want to look up?',
-		}]).then(function(n) {
-			item = n.qMovie
-			movie(n.qMovie);
-
-		})
-	}
-	var start = function() {
-		inquirer.prompt([
-	    {
-	    	type: "list",
-	    	name: 'command',
-	    	message: 'Thank you for choosing liri, what would you like to do?',
-	    	choices: ["Let's spy on Taliesin's fake twitter feed, that would be fun!", "Look up a song on Spotify", "Look up a movie on OMDB.", "How about we do what the random.txt file tells us to do?"],
-			default: "How about we do what the random.txt file tells us to do?"
-		}
-	]).then(function(choice) {
-		if(choice.command == "Let's spy on Taliesin's fake twitter feed, that would be fun!") {
-			tweets();
-		} else if (choice.command == "How about we do what the random.txt file tells us to do?") {
-			itSays();
-		} else if (choice.command == "Look up a song on Spotify") {
-			spotifyPrompt();
-		} else {
-			OMDBPrompt();
-		}
-	})
-}
-start();
+switchFunction(command, item);
