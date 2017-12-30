@@ -1,1 +1,3 @@
 # liri-node-app
+This node app allows you to look up songs on spotify and movies on omdb, as well as to look the last 10 tweets from my fake twitter account and to do what ever is commanded by a text file.  So exciting...  
+![Spotify, omdb](spotify.png) 
